@@ -1,37 +1,46 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
 import Time from "../components/Time";
-import { darkTheme, lightTheme, GlobalStyles } from "../themes";
+import { useGlobalContext } from "../context";
+import { motion } from "framer-motion";
 const Home = () => {
-  const [theme, setTheme] = useState("dark");
+  const { theme, themeToggler } = useGlobalContext();
 
-  const themeToggler = () => {
-    theme === "light" ? setTheme("dark") : setTheme("light");
-  };
-  console.log(theme);
   return (
-    <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
-      {/* <GlobalStyles /> */}
-      <Wrapper>
-        <div className="container">
-          <div className="top">
-            <Time />
-            <div className="dark-btn" onClick={() => themeToggler()}>
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-            </div>
-          </div>
-          <div className="bottom">
-            <button>Todo List</button>
+    <Wrapper
+      initial={{
+        width: 0,
+        backgroundColor: `${(props) => props.theme.backgroundColor}`,
+      }}
+      animate={{ width: "100vw" }}
+      exit={{
+        x: window.innerWidth,
+        backgroundColor: `${(props) => props.theme.backgroundColor}`,
+        transition: { duration: 0.1 },
+      }}
+    >
+      <motion.div className="container" drag>
+        <div className="top">
+          <Time />
+          <div className="dark-btn" onClick={() => themeToggler()}>
+            {theme === "dark" ? "Light Mode" : "Dark Mode"}
           </div>
         </div>
-      </Wrapper>
-    </ThemeProvider>
+        <div className="bottom">
+          <Link to={"/todos"} style={{ textDecoration: "none" }}>
+            <button className="todo-btn">Todo List</button>
+          </Link>
+        </div>
+      </motion.div>
+    </Wrapper>
   );
 };
 
 export default Home;
 
-const Wrapper = styled.div`
+const Wrapper = styled(motion.div)`
+  overflow: hidden;
   height: 100vh;
   background-color: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.fontColor};
@@ -53,6 +62,7 @@ const Wrapper = styled.div`
     justify-content: space-between;
     .top {
       display: flex;
+      color: ${(props) => props.theme.heading};
       flex-direction: column;
       align-items: center;
       /* background-color: black; */
@@ -70,8 +80,9 @@ const Wrapper = styled.div`
     }
     .bottom {
       min-width: 100%;
-      button {
+      .todo-btn {
         cursor: pointer;
+        text-decoration: none;
         display: flex;
         justify-content: center;
         min-width: 100%;
